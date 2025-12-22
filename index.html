@@ -1,27 +1,91 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Smart Movie Explorer</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart Movie & TV Explorer</title>
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <header>
-    <h1>Smart Movie Explorer</h1>
-    <input type="text" id="search" placeholder="Search for a movie or show..." />
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="logo">🎬 Smart Explorer</div>
+
+    <input
+      type="text"
+      id="searchInput"
+      placeholder="Search movies or TV shows..."
+      autocomplete="off"
+    />
+
+    <button id="themeToggle" aria-label="Toggle Theme">
+      <i class="fas fa-moon"></i>
+    </button>
   </header>
 
-  <main id="movie-container">
-    <!-- Movie cards will be injected here by JS -->
+  <!-- MAIN -->
+  <main>
+
+    <!-- FILTER BAR -->
+    <section class="filters">
+      <select id="genreFilter">
+        <option value="">All Genres</option>
+      </select>
+
+      <select id="yearFilter">
+        <option value="">All Years</option>
+      </select>
+
+      <button id="randomBtn">🎲 Movie of the Day</button>
+    </section>
+
+    <!-- MOVIE GRID -->
+    <section id="movieGrid" class="movie-grid">
+      <!-- Cards injected by JS -->
+    </section>
+
   </main>
 
+  <!-- MOVIE DETAILS MODAL -->
+  <div id="movieModal" class="modal hidden">
+    <div class="modal-content">
+      <button class="close-modal">&times;</button>
+
+      <div class="modal-body">
+        <img id="modalPoster" alt="Movie Poster" />
+
+        <div class="modal-info">
+          <h2 id="modalTitle"></h2>
+          <p id="modalOverview"></p>
+          <p><strong>Release:</strong> <span id="modalDate"></span></p>
+          <p><strong>Rating:</strong> ⭐ <span id="modalRating"></span></p>
+
+          <a
+            id="trailerLink"
+            href="#"
+            target="_blank"
+            class="trailer-btn"
+          >
+            ▶ Watch Trailer
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
   <footer>
-    <p>&copy; 2025 Smart Movie Explorer</p>
+    <p>© 2025 Smart Movie & TV Explorer • Built with Vanilla JS</p>
   </footer>
 
   <script src="script.js"></script>
 </body>
 </html>
-
