@@ -1,7 +1,7 @@
 /* ==================================================
    CONFIG
 ================================================== */
-const API_KEY = "YOUR_TMDB_API_KEY"; // 🔴 Replace with your key
+const API_KEY = "dc56314274bca0c41b789627e1f235da";
 const BASE_URL = "https://api.themoviedb.org/3";
 const IMG = "https://image.tmdb.org/t/p/w500";
 
