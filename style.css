@@ -54,6 +54,15 @@ body {
   font-weight: 600;
   white-space: nowrap;
 }
+.header .logo a {
+    text-decoration: none; 
+    color: #333;           
+    font-size: 2em;         
+}
+
+.header .logo a:hover {
+    color: #007BFF;        
+}
 
 .search-wrapper {
   flex: 1;
