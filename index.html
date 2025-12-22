@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <title>Smart Movie & TV Explorer</title>
+  <meta name="description" content="Explore movies and TV shows with a modern, responsive web app built using vanilla JavaScript and real APIs." />
 
   <!-- Google Font -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
@@ -19,48 +21,58 @@
   <header class="header">
     <div class="logo">🎬 Smart Explorer</div>
 
-    <input
-      type="text"
-      id="searchInput"
-      placeholder="Search movies or TV shows..."
-      autocomplete="off"
-    />
+    <div class="search-wrapper">
+      <input
+        type="text"
+        id="searchInput"
+        placeholder="Search movies or TV shows..."
+        autocomplete="off"
+      />
+      <ul id="suggestions" class="suggestions"></ul>
+    </div>
 
     <button id="themeToggle" aria-label="Toggle Theme">
       <i class="fas fa-moon"></i>
     </button>
   </header>
 
-  <!-- MAIN -->
+  <!-- FILTERS -->
+  <section class="filters">
+    <select id="typeFilter">
+      <option value="movie">Movies</option>
+      <option value="tv">TV Shows</option>
+    </select>
+
+    <select id="genreFilter">
+      <option value="">All Genres</option>
+    </select>
+
+    <select id="yearFilter">
+      <option value="">All Years</option>
+    </select>
+
+    <button id="randomBtn">🎲 Movie of the Day</button>
+  </section>
+
+  <!-- MOVIE GRID -->
   <main>
+    <section id="movieGrid" class="movie-grid"></section>
 
-    <!-- FILTER BAR -->
-    <section class="filters">
-      <select id="genreFilter">
-        <option value="">All Genres</option>
-      </select>
-
-      <select id="yearFilter">
-        <option value="">All Years</option>
-      </select>
-
-      <button id="randomBtn">🎲 Movie of the Day</button>
-    </section>
-
-    <!-- MOVIE GRID -->
-    <section id="movieGrid" class="movie-grid">
-      <!-- Cards injected by JS -->
-    </section>
-
+    <!-- PAGINATION -->
+    <div class="pagination">
+      <button id="prevPage">⬅ Prev</button>
+      <span id="pageInfo">Page 1</span>
+      <button id="nextPage">Next ➡</button>
+    </div>
   </main>
 
-  <!-- MOVIE DETAILS MODAL -->
+  <!-- MODAL -->
   <div id="movieModal" class="modal hidden">
     <div class="modal-content">
       <button class="close-modal">&times;</button>
 
       <div class="modal-body">
-        <img id="modalPoster" alt="Movie Poster" />
+        <img id="modalPoster" alt="Poster" />
 
         <div class="modal-info">
           <h2 id="modalTitle"></h2>
@@ -68,12 +80,7 @@
           <p><strong>Release:</strong> <span id="modalDate"></span></p>
           <p><strong>Rating:</strong> ⭐ <span id="modalRating"></span></p>
 
-          <a
-            id="trailerLink"
-            href="#"
-            target="_blank"
-            class="trailer-btn"
-          >
+          <a id="trailerLink" class="trailer-btn" target="_blank">
             ▶ Watch Trailer
           </a>
         </div>
@@ -83,7 +90,7 @@
 
   <!-- FOOTER -->
   <footer>
-    <p>© 2025 Smart Movie & TV Explorer • Built with Vanilla JS</p>
+    <p>© 2025 Smart Movie & TV Explorer • Vanilla JS</p>
   </footer>
 
   <script src="script.js"></script>
