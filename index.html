@@ -1,98 +1,291 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <title>Smart Movie & TV Explorer</title>
-  <meta name="description" content="Explore movies and TV shows with a modern, responsive web app built using vanilla JavaScript and real APIs." />
-
-  <!-- Google Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-
-  <!-- Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#080b12" />
+  <meta name="color-scheme" content="dark light" />
+  <meta name="description" content="Discover trending movies and TV shows, search TMDB, filter by genre and year, watch trailers, and save a personal watchlist." />
+  <title>CineScope — Smart Movie & TV Explorer</title>
+  <link rel="preconnect" href="https://image.tmdb.org" crossorigin />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <a class="skip-link" href="#contentGrid">Skip to content</a>
 
-  <!-- HEADER -->
-  <header class="header">
-    <div class="logo"><a href="index.html">🎬 Smart Explorer</a></div>
+  <header class="app-header" id="top">
+    <div class="header-inner">
+      <a class="brand" href="#top" aria-label="CineScope home" data-action="home">
+        <span class="brand-mark" aria-hidden="true">
+          <svg class="icon" viewBox="0 0 24 24"><use href="#icon-play"></use></svg>
+        </span>
+        <span class="brand-copy">
+          <strong>CineScope</strong>
+          <small>Movie & TV Explorer</small>
+        </span>
+      </a>
 
-    <div class="search-wrapper">
-      <input
-        type="text"
-        id="searchInput"
-        placeholder="Search movies or TV shows..."
-        autocomplete="off"
-      />
-      <ul id="suggestions" class="suggestions"></ul>
-    </div>
+      <nav class="desktop-nav" aria-label="Primary navigation">
+        <button class="nav-link is-active" type="button" data-nav="home">Discover</button>
+        <button class="nav-link" type="button" data-nav="movie">Movies</button>
+        <button class="nav-link" type="button" data-nav="tv">TV Shows</button>
+        <button class="nav-link" type="button" data-nav="favorites">
+          My List <span class="nav-count" id="favoritesCount">0</span>
+        </button>
+      </nav>
 
-    <button id="themeToggle" aria-label="Toggle Theme">
-      <i class="fas fa-moon"></i>
-    </button>
-  </header>
+      <div class="header-actions">
+        <button class="icon-button" id="apiSettingsButton" type="button" aria-label="TMDB API settings" title="TMDB API settings" hidden>
+          <svg class="icon" viewBox="0 0 24 24"><use href="#icon-key"></use></svg>
+        </button>
+        <button class="icon-button" id="themeToggle" type="button" aria-label="Switch to light theme" title="Change theme">
+          <svg class="icon theme-icon-moon" viewBox="0 0 24 24"><use href="#icon-moon"></use></svg>
+          <svg class="icon theme-icon-sun" viewBox="0 0 24 24"><use href="#icon-sun"></use></svg>
+        </button>
+      </div>
 
-  <!-- FILTERS -->
-  <section class="filters">
-    <select id="typeFilter">
-      <option value="movie">Movies</option>
-      <option value="tv">TV Shows</option>
-    </select>
-
-    <select id="genreFilter">
-      <option value="">All Genres</option>
-    </select>
-
-    <select id="yearFilter">
-      <option value="">All Years</option>
-    </select>
-
-    <button id="randomBtn">🎲 Movie of the Day</button>
-  </section>
-
-  <!-- MOVIE GRID -->
-  <main>
-    <section id="movieGrid" class="movie-grid"></section>
-
-    <!-- PAGINATION -->
-    <div class="pagination">
-      <button id="prevPage">⬅ Prev</button>
-      <span id="pageInfo">Page 1</span>
-      <button id="nextPage">Next ➡</button>
-    </div>
-  </main>
-
-  <!-- MODAL -->
-  <div id="movieModal" class="modal hidden">
-    <div class="modal-content">
-      <button class="close-modal">&times;</button>
-
-      <div class="modal-body">
-        <img id="modalPoster" alt="Poster" />
-
-        <div class="modal-info">
-          <h2 id="modalTitle"></h2>
-          <p id="modalOverview"></p>
-          <p><strong>Release:</strong> <span id="modalDate"></span></p>
-          <p><strong>Rating:</strong> ⭐ <span id="modalRating"></span></p>
-
-          <a id="trailerLink" class="trailer-btn" target="_blank">
-            ▶ Watch Trailer
-          </a>
-        </div>
+      <div class="header-search" id="headerSearch">
+        <svg class="icon search-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-search"></use></svg>
+        <label class="sr-only" for="searchInput">Search movies or TV shows</label>
+        <input id="searchInput" type="search" placeholder="Search movies or shows…" autocomplete="off" spellcheck="false" aria-autocomplete="list" aria-controls="suggestions" aria-expanded="false" />
+        <kbd class="search-shortcut" aria-hidden="true">/</kbd>
+        <button class="search-clear" id="searchClear" type="button" aria-label="Clear search" hidden>
+          <svg class="icon" viewBox="0 0 24 24"><use href="#icon-close"></use></svg>
+        </button>
+        <div class="suggestions" id="suggestions" role="listbox" aria-label="Search suggestions" hidden></div>
       </div>
     </div>
-  </div>
+  </header>
 
-  <!-- FOOTER -->
-  <footer>
-    <p>© 2025 Smart Movie & TV Explorer • SayedRahim Sadat</p>
+  <main>
+    <section class="hero" id="hero" aria-labelledby="heroTitle">
+      <div class="hero-backdrop" id="heroBackdrop" aria-hidden="true"></div>
+      <div class="hero-overlay" aria-hidden="true"></div>
+      <div class="hero-content page-shell">
+        <p class="eyebrow"><span class="live-dot"></span><span id="heroEyebrow">Trending this week</span></p>
+        <h1 id="heroTitle">Find your next great watch.</h1>
+        <p class="hero-description" id="heroDescription">Explore movies and TV shows with search, smart filters, trailers, ratings, cast details, and a watchlist that stays on your device.</p>
+        <div class="hero-meta" id="heroMeta" aria-label="Featured title details"></div>
+        <div class="hero-actions">
+          <button class="primary-button" id="heroDetailsButton" type="button" disabled>
+            <svg class="icon" viewBox="0 0 24 24"><use href="#icon-info"></use></svg>
+            View details
+          </button>
+          <button class="secondary-button" id="randomButton" type="button">
+            <svg class="icon" viewBox="0 0 24 24"><use href="#icon-shuffle"></use></svg>
+            Surprise me
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="explorer page-shell" aria-labelledby="sectionTitle">
+      <div class="explorer-head">
+        <div>
+          <p class="section-kicker" id="sectionKicker">Discover</p>
+          <h2 id="sectionTitle">Trending movies</h2>
+          <p class="section-description" id="sectionDescription">What people are watching right now.</p>
+        </div>
+
+        <button class="filter-toggle" id="filterToggle" type="button" aria-expanded="false" aria-controls="filterPanel">
+          <svg class="icon" viewBox="0 0 24 24"><use href="#icon-sliders"></use></svg>
+          Filters
+          <span class="filter-count" id="filterCount" hidden>0</span>
+        </button>
+      </div>
+
+      <div class="mode-bar" aria-label="Content categories">
+        <div class="segmented-control" role="group" aria-label="Media type">
+          <button type="button" class="segment is-active" data-type="movie" aria-pressed="true">Movies</button>
+          <button type="button" class="segment" data-type="tv" aria-pressed="false">TV Shows</button>
+        </div>
+
+        <div class="category-scroller" id="categoryScroller">
+          <button class="category-chip is-active" type="button" data-mode="trending">Trending</button>
+          <button class="category-chip" type="button" data-mode="popular">Popular</button>
+          <button class="category-chip" type="button" data-mode="top_rated">Top Rated</button>
+          <button class="category-chip" type="button" data-mode="upcoming">Upcoming</button>
+        </div>
+      </div>
+
+      <div class="filter-panel" id="filterPanel" hidden>
+        <div class="filter-grid">
+          <label class="field">
+            <span>Genre</span>
+            <select id="genreFilter"><option value="">All genres</option></select>
+          </label>
+          <label class="field">
+            <span>Year</span>
+            <select id="yearFilter"><option value="">Any year</option></select>
+          </label>
+          <label class="field">
+            <span>Minimum rating</span>
+            <select id="ratingFilter">
+              <option value="">Any rating</option>
+              <option value="7">7.0+</option>
+              <option value="8">8.0+</option>
+              <option value="9">9.0+</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>Sort by</span>
+            <select id="sortFilter">
+              <option value="popularity.desc">Popularity</option>
+              <option value="vote_average.desc">Rating</option>
+              <option value="primary_release_date.desc">Newest</option>
+              <option value="revenue.desc" data-movie-only="true">Revenue</option>
+            </select>
+          </label>
+        </div>
+        <div class="filter-actions">
+          <button class="text-button" id="clearFiltersButton" type="button">Clear filters</button>
+          <button class="primary-button compact" id="applyFiltersButton" type="button">Apply filters</button>
+        </div>
+      </div>
+
+      <div class="content-toolbar">
+        <p class="results-label" id="resultsLabel" aria-live="polite">Loading titles…</p>
+        <button class="text-button favorites-view-button" id="favoritesViewButton" type="button">
+          <svg class="icon" viewBox="0 0 24 24"><use href="#icon-heart"></use></svg>
+          My List <span id="favoritesInlineCount">0</span>
+        </button>
+      </div>
+
+      <div class="notice" id="offlineNotice" role="status" hidden>
+        <svg class="icon" viewBox="0 0 24 24"><use href="#icon-wifi-off"></use></svg>
+        You’re offline. Saved titles are still available in My List.
+      </div>
+
+      <div class="content-grid" id="contentGrid" aria-live="polite" aria-busy="true"></div>
+
+      <div class="state-card" id="emptyState" hidden>
+        <div class="state-icon"><svg class="icon" viewBox="0 0 24 24"><use href="#icon-search"></use></svg></div>
+        <h3 id="emptyTitle">Nothing found</h3>
+        <p id="emptyMessage">Try changing your search or filters.</p>
+        <button class="secondary-button" id="emptyActionButton" type="button">Reset view</button>
+      </div>
+
+      <div class="state-card state-error" id="errorState" hidden>
+        <div class="state-icon"><svg class="icon" viewBox="0 0 24 24"><use href="#icon-alert"></use></svg></div>
+        <h3>We couldn’t load this page</h3>
+        <p id="errorMessage">Check your internet connection and try again.</p>
+        <div class="state-actions">
+          <button class="secondary-button" id="retryButton" type="button">Try again</button>
+          <button class="text-button" id="errorApiButton" type="button" hidden>API settings</button>
+        </div>
+      </div>
+
+      <nav class="pagination" id="pagination" aria-label="Results pages" hidden>
+        <button class="pagination-button" id="prevPage" type="button" aria-label="Previous page">
+          <svg class="icon" viewBox="0 0 24 24"><use href="#icon-chevron-left"></use></svg>
+          <span>Previous</span>
+        </button>
+        <div class="page-status">
+          <strong id="pageCurrent">1</strong>
+          <span>of</span>
+          <span id="pageTotal">1</span>
+        </div>
+        <button class="pagination-button" id="nextPage" type="button" aria-label="Next page">
+          <span>Next</span>
+          <svg class="icon" viewBox="0 0 24 24"><use href="#icon-chevron-right"></use></svg>
+        </button>
+      </nav>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="page-shell footer-inner">
+      <div>
+        <a class="footer-brand" href="#top" data-action="home">CineScope</a>
+        <p>A responsive movie & TV discovery experience built with HTML, CSS and Vanilla JavaScript.</p>
+      </div>
+      <div class="footer-meta">
+        <p>Data & imagery provided by <a href="https://www.themoviedb.org/" target="_blank" rel="noreferrer">TMDB</a>.</p>
+        <p>This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
+        <p>Built by Sayedrahim Sadat.</p>
+      </div>
+    </div>
   </footer>
 
-  <script src="script.js"></script>
+  <nav class="mobile-nav" aria-label="Mobile navigation">
+    <button type="button" class="mobile-nav-item is-active" data-mobile-nav="home">
+      <svg class="icon" viewBox="0 0 24 24"><use href="#icon-home"></use></svg><span>Home</span>
+    </button>
+    <button type="button" class="mobile-nav-item" data-mobile-nav="search">
+      <svg class="icon" viewBox="0 0 24 24"><use href="#icon-search"></use></svg><span>Search</span>
+    </button>
+    <button type="button" class="mobile-nav-item" data-mobile-nav="favorites">
+      <span class="mobile-icon-wrap"><svg class="icon" viewBox="0 0 24 24"><use href="#icon-heart"></use></svg><b id="mobileFavoritesCount" hidden>0</b></span><span>My List</span>
+    </button>
+    <button type="button" class="mobile-nav-item" data-mobile-nav="random">
+      <svg class="icon" viewBox="0 0 24 24"><use href="#icon-shuffle"></use></svg><span>Random</span>
+    </button>
+  </nav>
+
+  <div class="modal" id="detailsModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" hidden>
+    <div class="modal-scrim" data-close-modal="details"></div>
+    <article class="details-modal" tabindex="-1">
+      <button class="modal-close" id="detailsClose" type="button" aria-label="Close details">
+        <svg class="icon" viewBox="0 0 24 24"><use href="#icon-close"></use></svg>
+      </button>
+      <div id="detailsContent"></div>
+    </article>
+  </div>
+
+  <div class="modal" id="apiModal" role="dialog" aria-modal="true" aria-labelledby="apiModalTitle" hidden>
+    <div class="modal-scrim" data-close-modal="api"></div>
+    <section class="api-modal" tabindex="-1">
+      <button class="modal-close" id="apiClose" type="button" aria-label="Close API settings">
+        <svg class="icon" viewBox="0 0 24 24"><use href="#icon-close"></use></svg>
+      </button>
+      <div class="api-icon"><svg class="icon" viewBox="0 0 24 24"><use href="#icon-key"></use></svg></div>
+      <p class="section-kicker">Connection</p>
+      <h2 id="apiModalTitle">Connect the TMDB API</h2>
+      <p>For a GitHub Pages project, the safest simple option is to keep your TMDB v3 API key in your own browser instead of committing it to GitHub. Paste the key below and CineScope will store it only in <code>localStorage</code>.</p>
+      <label class="field api-key-field">
+        <span>TMDB v3 API key</span>
+        <div class="password-field">
+          <input id="apiKeyInput" type="password" autocomplete="off" placeholder="Paste your API key" />
+          <button id="toggleApiVisibility" class="icon-button" type="button" aria-label="Show API key">
+            <svg class="icon" viewBox="0 0 24 24"><use href="#icon-eye"></use></svg>
+          </button>
+        </div>
+      </label>
+      <p class="api-status" id="apiStatus" role="status"></p>
+      <div class="api-actions">
+        <button class="text-button danger-text" id="removeApiKeyButton" type="button">Remove saved key</button>
+        <button class="primary-button" id="saveApiKeyButton" type="button">Save & connect</button>
+      </div>
+      <p class="api-note"><strong>Important:</strong> Any API key embedded directly in a public GitHub Pages site can be viewed by visitors. For production-grade secret handling, use a backend or serverless proxy.</p>
+    </section>
+  </div>
+
+  <div class="toast-region" id="toastRegion" aria-live="polite" aria-atomic="true"></div>
+
+  <svg class="svg-sprite" aria-hidden="true">
+    <symbol id="icon-play" viewBox="0 0 24 24"><path d="M8 5.5v13l10-6.5-10-6.5Z" fill="currentColor"/></symbol>
+    <symbol id="icon-search" viewBox="0 0 24 24"><path d="m21 21-4.35-4.35m2.35-5.15a7.5 7.5 0 1 1-15 0 7.5 7.5 0 0 1 15 0Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="icon-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="icon-moon" viewBox="0 0 24 24"><path d="M20.2 15.2A8.7 8.7 0 0 1 8.8 3.8 9 9 0 1 0 20.2 15.2Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="icon-key" viewBox="0 0 24 24"><circle cx="8.5" cy="15.5" r="4.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="m12 12 8-8m-3 3 3 3m-6-6 3 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-heart" viewBox="0 0 24 24"><path d="M20.8 5.8a5.4 5.4 0 0 0-7.6 0L12 7l-1.2-1.2a5.4 5.4 0 1 0-7.6 7.6L12 22l8.8-8.6a5.4 5.4 0 0 0 0-7.6Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-heart-filled" viewBox="0 0 24 24"><path d="M20.8 5.8a5.4 5.4 0 0 0-7.6 0L12 7l-1.2-1.2a5.4 5.4 0 1 0-7.6 7.6L12 22l8.8-8.6a5.4 5.4 0 0 0 0-7.6Z" fill="currentColor"/></symbol>
+    <symbol id="icon-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 11v6m0-10h.01" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+    <symbol id="icon-shuffle" viewBox="0 0 24 24"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-sliders" viewBox="0 0 24 24"><path d="M4 6h10m4 0h2M4 12h3m4 0h9M4 18h8m4 0h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="16" cy="6" r="2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="9" cy="12" r="2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="14" cy="18" r="2" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+    <symbol id="icon-wifi-off" viewBox="0 0 24 24"><path d="m2 2 20 20M5 12.6a11 11 0 0 1 2.1-1.5m3.4-.9c3.2-.4 6.6.5 9.1 2.4M8.5 16a5 5 0 0 1 7 0M12 20h.01M3.5 8.5A15 15 0 0 1 6 7m3.2-1.1A15 15 0 0 1 20.5 8.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="icon-alert" viewBox="0 0 24 24"><path d="M12 3 2.5 20h19L12 3Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M12 9v5m0 3h.01" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="icon-chevron-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-chevron-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-home" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1V10Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-star" viewBox="0 0 24 24"><path d="m12 2.8 2.8 5.7 6.3.9-4.6 4.4 1.1 6.3-5.6-3-5.6 3 1.1-6.3-4.6-4.4 6.3-.9L12 2.8Z" fill="currentColor"/></symbol>
+    <symbol id="icon-calendar" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 3v4M8 3v4M3 10h18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="icon-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="icon-eye" viewBox="0 0 24 24"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="2.7" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+    <symbol id="icon-external" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M20 13v6a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  </svg>
+
+  <script src="script.js" defer></script>
 </body>
 </html>
